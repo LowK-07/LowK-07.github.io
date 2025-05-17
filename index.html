@@ -3,75 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Tài chính Cá nhân - LowK-07</title>
-    <meta name="description" content="Personal Finance Tracker by LowK-07">
-    <meta name="author" content="LowK-07">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Personal Finance Tracker</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>💰 Quản lý Tài chính Cá nhân - LowK-07 💰</h1>
+<body class="bg-light">
+    <div class="container py-4" id="content-to-export">
+        <header class="pb-3 mb-4 border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h2">Personal Finance Tracker</h1>
+                <div>
+                    <select id="monthSelector" class="form-select mb-2">
+                        <option value="">Chọn tháng...</option>
+                    </select>
+                    <button onclick="exportPDF()" class="btn btn-primary">Xuất PDF</button>
+                </div>
+            </div>
         </header>
-        
-        <main>
-            <div class="dashboard">
-                <div class="summary-cards">
-                    <div class="card" id="budgetCard">
-                        <h3>Tổng Ngân sách</h3>
-                        <p class="amount">Đang tải...</p>
-                    </div>
-                    <div class="card" id="expenseCard">
-                        <h3>Tổng Chi tiêu</h3>
-                        <p class="amount">Đang tải...</p>
-                    </div>
-                    <div class="card" id="savingCard">
-                        <h3>Tiết kiệm</h3>
-                        <p class="amount">Đang tải...</p>
-                    </div>
-                </div>
 
-                <div class="charts-container">
-                    <div class="chart-wrapper">
-                        <canvas id="expenseChart"></canvas>
-                    </div>
-                    <div class="chart-wrapper">
-                        <canvas id="savingChart"></canvas>
-                    </div>
-                </div>
+        <!-- Error Message Container -->
+        <div id="error-message"></div>
 
-                <div class="data-section">
-                    <div class="controls">
-                        <select id="dataType">
-                            <option value="KE_HOACH">Kế hoạch Chi tiêu</option>
-                            <option value="NGAN_SACH">Ngân sách</option>
-                            <option value="CHI_TIEU">Chi tiêu Cụ thể</option>
-                            <option value="TIET_KIEM">Tiết kiệm</option>
-                        </select>
-                        <input type="month" id="monthPicker" value="2025-05">
-                        <button onclick="refreshData()" class="btn">🔄 Làm mới</button>
-                        <button onclick="exportPDF()" class="btn">📄 Xuất PDF</button>
-                    </div>
-
-                    <div class="table-container">
-                        <table id="dataTable">
-                            <thead></thead>
-                            <tbody></tbody>
-                        </table>
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Tổng Ngân Sách</h5>
+                        <p class="card-text" id="tongNganSach">0đ</p>
                     </div>
                 </div>
             </div>
-        </main>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Tổng Chi Tiêu</h5>
+                        <p class="card-text" id="tongChiTieu">0đ</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Còn Lại</h5>
+                        <p class="card-text" id="conLai">0đ</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Tiết Kiệm</h5>
+                        <p class="card-text" id="tietKiem">0đ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Chi Tiêu Theo Danh Mục</h5>
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Tiết Kiệm Theo Tháng</h5>
+                        <canvas id="savingChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Kế Hoạch Chi Tiêu</h5>
+                        <div class="table-responsive">
+                            <table class="table" id="keHoachTable">
+                                <thead>
+                                    <tr>
+                                        <th>Ngày</th>
+                                        <th>Mục Tiêu</th>
+                                        <th>Số Tiền</th>
+                                        <th>Ghi Chú</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Chi Tiêu Cụ Thể</h5>
+                        <div class="table-responsive">
+                            <table class="table" id="chiTieuTable">
+                                <thead>
+                                    <tr>
+                                        <th>Ngày</th>
+                                        <th>Mô Tả</th>
+                                        <th>Số Tiền</th>
+                                        <th>Danh Mục</th>
+                                        <th>Ghi Chú</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <button id="musicToggle" class="music-btn" onclick="toggleMusic()">🎵</button>
-    <audio id="bgMusic" loop>
-        <source src="background-music.mp3" type="audio/mpeg">
-    </audio>
-
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
     <script src="sheets-api.js"></script>
-    <script src="script.js"></script>
+    <script src="app.js"></script>
+
+    <!-- Export PDF Function -->
+    <script>
+        function exportPDF() {
+            const element = document.getElementById('content-to-export');
+            const opt = {
+                margin: 1,
+                filename: 'finance-report.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // Thông báo bắt đầu xuất PDF
+            console.log('🖨️ Bắt đầu xuất PDF...');
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                console.log('✅ Xuất PDF thành công!');
+            }).catch(error => {
+                console.error('❌ Lỗi khi xuất PDF:', error);
+                alert('Có lỗi xảy ra khi xuất PDF. Vui lòng thử lại sau.');
+            });
+        }
+    </script>
 </body>
 </html>
