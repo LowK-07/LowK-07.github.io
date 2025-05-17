@@ -1,9 +1,8 @@
 class GoogleSheetsAPI {
     constructor() {
-        // ID của Google Sheet của bạn
         this.spreadsheetId = '1d-laKM9AZDEfxxChXI_q4xUcqxPGVs7GUZNHmptpRPE';
         this.initialized = false;
-        this.lastUpdate = '2025-05-17 06:28:58';
+        this.lastUpdate = '2025-05-17 06:57:41';
         this.username = 'LowK-07';
     }
 
@@ -37,6 +36,9 @@ class GoogleSheetsAPI {
                 range: range,
             });
 
+            // Debug log
+            console.log(`📊 Lấy dữ liệu từ range ${range}:`, response.result.values);
+
             return response.result.values || [];
         } catch (error) {
             console.error('❌ Lỗi khi lấy dữ liệu:', error);
@@ -53,6 +55,14 @@ class GoogleSheetsAPI {
                 this.getData('TIẾT KIỆM!A2:E')
             ]);
 
+            // Debug log raw data
+            console.log('📋 Raw Data:', {
+                keHoach: keHoach,
+                nganSach: nganSach,
+                chiTieu: chiTieu,
+                tietKiem: tietKiem
+            });
+
             console.log(`📊 Đã lấy dữ liệu thành công
     📅 Tháng: ${month || 'Tất cả'}
     📝 Số mục kế hoạch: ${keHoach?.length || 0}
@@ -60,12 +70,17 @@ class GoogleSheetsAPI {
     💸 Số mục chi tiêu: ${chiTieu?.length || 0}
     🏦 Số mục tiết kiệm: ${tietKiem?.length || 0}`);
 
-            return {
+            const filteredData = {
                 keHoach: this.filterByMonth(keHoach, month),
                 nganSach: this.filterByMonth(nganSach, month),
                 chiTieu: this.filterByMonth(chiTieu, month),
                 tietKiem: this.filterByMonth(tietKiem, month)
             };
+
+            // Debug log filtered data
+            console.log('🔍 Filtered Data:', filteredData);
+
+            return filteredData;
         } catch (error) {
             console.error('❌ Lỗi khi lấy tất cả dữ liệu:', error);
             throw new Error(`Lỗi lấy toàn bộ dữ liệu: ${error.message}`);
@@ -86,6 +101,9 @@ class GoogleSheetsAPI {
 
     calculateTotals(data) {
         try {
+            // Debug log before calculation
+            console.log('💭 Calculating totals for:', data);
+
             const totals = {
                 tongNganSach: this.sumColumn(data.nganSach, 2),
                 tongChiTieu: this.sumColumn(data.chiTieu, 2),
@@ -107,7 +125,13 @@ class GoogleSheetsAPI {
     sumColumn(data, colIndex) {
         if (!data || !Array.isArray(data)) return 0;
         return data.reduce((sum, row) => {
-            const value = parseFloat(row[colIndex]) || 0;
+            // Xử lý string và loại bỏ ký tự đặc biệt
+            const rawValue = String(row[colIndex] || '0').replace(/[^\d.-]/g, '');
+            const value = parseFloat(rawValue) || 0;
+            
+            // Debug log cho mỗi giá trị
+            console.log(`🔢 Processing value: "${row[colIndex]}" -> ${value}`);
+            
             return sum + value;
         }, 0);
     }
@@ -118,15 +142,21 @@ class GoogleSheetsAPI {
             if (data.chiTieu) {
                 data.chiTieu.forEach(row => {
                     const category = row[3] || 'Khác';
-                    const amount = parseFloat(row[2]) || 0;
+                    const amount = parseFloat(String(row[2]).replace(/[^\d.-]/g, '')) || 0;
                     categories[category] = (categories[category] || 0) + amount;
                 });
             }
 
             const savings = data.tietKiem ? data.tietKiem.map(row => ({
                 month: row[0],
-                amount: parseFloat(row[3]) || 0
+                amount: parseFloat(String(row[3]).replace(/[^\d.-]/g, '')) || 0
             })) : [];
+
+            // Debug log chart data
+            console.log('📊 Chart Data:', {
+                categories: categories,
+                savings: savings
+            });
 
             console.log(`📊 Dữ liệu biểu đồ:
     🔍 Số danh mục chi tiêu: ${Object.keys(categories).length}
