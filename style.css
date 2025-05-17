@@ -94,9 +94,7 @@ select, input, button {
     border: none;
     cursor: pointer;
     transition: background-color 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    padding: 10px 20px;
 }
 
 .btn:hover {
@@ -131,7 +129,7 @@ tr:hover {
     background-color: #fff5f8;
 }
 
-#musicToggle {
+.music-btn {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -139,10 +137,16 @@ tr:hover {
     height: 50px;
     border-radius: 50%;
     background-color: var(--primary-color);
-    border: none;
     color: white;
+    border: none;
     cursor: pointer;
+    font-size: 1.5em;
     box-shadow: var(--shadow);
+    transition: transform 0.3s;
+}
+
+.music-btn:hover {
+    transform: scale(1.1);
 }
 
 @media (max-width: 768px) {
