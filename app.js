@@ -153,4 +153,8 @@ function updateCharts(chartData) {
 }
 
 // Khởi tạo khi DOM đã load xong
+<<<<<<< HEAD
 document.addEventListener('DOMContentLoaded', initializeApp);
+=======
+document.addEventListener('DOMContentLoaded', initializeApp);
+>>>>>>> eda8e5ecca9941930b814ed9d85d813cbe1818dd
