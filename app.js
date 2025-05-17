@@ -1,13 +1,10 @@
-// Biến toàn cục để lưu trữ biểu đồ
-let expenseChart = null;
-let savingChart = null;
-
 // Khởi tạo ứng dụng
 async function initializeApp() {
     try {
         await sheetsApi.initialize();
         console.log('🚀 Google Sheets API đã sẵn sàng');
         setupEventListeners();
+        initializeMusic();
         await updateData();
     } catch (error) {
         console.error('❌ Lỗi khởi tạo:', error);
@@ -58,10 +55,6 @@ async function updateData() {
         updateTable('keHoachTable', data.keHoach);
         updateTable('chiTieuTable', data.chiTieu);
 
-        // Cập nhật biểu đồ
-        const chartData = sheetsApi.getChartData(data);
-        updateCharts(chartData);
-
     } catch (error) {
         console.error('❌ Lỗi khi cập nhật dữ liệu:', error);
         document.getElementById('error-message').innerHTML = 
@@ -91,70 +84,33 @@ function updateTable(tableId, data) {
     });
 }
 
-// Cập nhật biểu đồ
-function updateCharts(chartData) {
-    try {
-        // Biểu đồ chi tiêu
-        const expenseCtx = document.getElementById('expenseChart').getContext('2d');
-        if (expenseChart) {
-            expenseChart.destroy();
-        }
-        expenseChart = new Chart(expenseCtx, {
-            type: 'pie',
-            data: {
-                labels: chartData.expenseChart.labels,
-                datasets: [{
-                    data: chartData.expenseChart.data,
-                    backgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                        '#FF9F40', '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
+// Khởi tạo âm nhạc
+function initializeMusic() {
+    const music = document.getElementById('backgroundMusic');
+    const musicControl = document.getElementById('musicControl');
+    let isPlaying = false;
 
-        // Biểu đồ tiết kiệm
-        const savingCtx = document.getElementById('savingChart').getContext('2d');
-        if (savingChart) {
-            savingChart.destroy();
+    musicControl.innerHTML = '<i class="fas fa-volume-up"></i><i class="fas fa-volume-mute"></i>';
+    musicControl.classList.add('muted');
+
+    musicControl.addEventListener('click', () => {
+        if (isPlaying) {
+            music.pause();
+            musicControl.classList.add('muted');
+        } else {
+            music.play().catch(error => {
+                console.log('🎵 Autoplay prevented:', error);
+            });
+            musicControl.classList.remove('muted');
         }
-        savingChart = new Chart(savingCtx, {
-            type: 'line',
-            data: {
-                labels: chartData.savingChart.labels,
-                datasets: [{
-                    label: 'Tiết kiệm',
-                    data: chartData.savingChart.data,
-                    borderColor: '#36A2EB',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    } catch (error) {
-        console.error('❌ Lỗi khi cập nhật biểu đồ:', error);
-        throw new Error(`Lỗi cập nhật biểu đồ: ${error.message}`);
-    }
+        isPlaying = !isPlaying;
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        music.volume = 0.5;
+        console.log('🎵 Music initialized');
+    });
 }
 
 // Khởi tạo khi DOM đã load xong
-<<<<<<< HEAD
 document.addEventListener('DOMContentLoaded', initializeApp);
-=======
-document.addEventListener('DOMContentLoaded', initializeApp);
->>>>>>> eda8e5ecca9941930b814ed9d85d813cbe1818dd
