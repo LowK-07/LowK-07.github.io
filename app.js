@@ -1,3 +1,7 @@
+// Biến toàn cục để lưu trữ biểu đồ
+let expenseChart = null;
+let savingChart = null;
+
 // Khởi tạo ứng dụng
 async function initializeApp() {
     try {
@@ -89,63 +93,64 @@ function updateTable(tableId, data) {
 
 // Cập nhật biểu đồ
 function updateCharts(chartData) {
-    // Biểu đồ chi tiêu
-    const expenseCtx = document.getElementById('expenseChart').getContext('2d');
-    if (window.expenseChart) {
-        window.expenseChart.destroy();
-    }
-    window.expenseChart = new Chart(expenseCtx, {
-        type: 'pie',
-        data: {
-            labels: chartData.expenseChart.labels,
-            datasets: [{
-                data: chartData.expenseChart.data,
-                backgroundColor: [
-                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                    '#FF9F40', '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
+    try {
+        // Biểu đồ chi tiêu
+        const expenseCtx = document.getElementById('expenseChart').getContext('2d');
+        if (expenseChart) {
+            expenseChart.destroy();
+        }
+        expenseChart = new Chart(expenseCtx, {
+            type: 'pie',
+            data: {
+                labels: chartData.expenseChart.labels,
+                datasets: [{
+                    data: chartData.expenseChart.data,
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                        '#FF9F40', '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
                 }
             }
-        }
-    });
+        });
 
-    // Biểu đồ tiết kiệm
-    const savingCtx = document.getElementById('savingChart').getContext('2d');
-    if (window.savingChart) {
-        window.savingChart.destroy();
-    }
-    window.savingChart = new Chart(savingCtx, {
-        type: 'line',
-        data: {
-            labels: chartData.savingChart.labels,
-            datasets: [{
-                label: 'Tiết kiệm',
-                data: chartData.savingChart.data,
-                borderColor: '#36A2EB',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
+        // Biểu đồ tiết kiệm
+        const savingCtx = document.getElementById('savingChart').getContext('2d');
+        if (savingChart) {
+            savingChart.destroy();
+        }
+        savingChart = new Chart(savingCtx, {
+            type: 'line',
+            data: {
+                labels: chartData.savingChart.labels,
+                datasets: [{
+                    label: 'Tiết kiệm',
+                    data: chartData.savingChart.data,
+                    borderColor: '#36A2EB',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
-        }
-    });
+        });
+    } catch (error) {
+        console.error('❌ Lỗi khi cập nhật biểu đồ:', error);
+        throw new Error(`Lỗi cập nhật biểu đồ: ${error.message}`);
+    }
 }
 
 // Khởi tạo khi DOM đã load xong
-<<<<<<< HEAD
 document.addEventListener('DOMContentLoaded', initializeApp);
-=======
-document.addEventListener('DOMContentLoaded', initializeApp);
->>>>>>> cb88e6e88ae1e5dc16c2b6ada86b1cd8e1295256
