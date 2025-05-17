@@ -2,27 +2,35 @@ class GoogleSheetsAPI {
     constructor() {
         this.spreadsheetId = '1d-laKM9AZDEfxxChXI_q4xUcqxPGVs7GUZNHmptpRPE';
         this.initialized = false;
-        this.lastUpdate = '2025-05-17 06:57:41';
+        this.lastUpdate = '2025-05-17 07:16:21';
         this.username = 'LowK-07';
+        this._initPromise = null;
     }
 
     async initialize() {
-        if (this.initialized) return;
+        if (this._initPromise) return this._initPromise;
 
-        try {
-            await gapi.client.init({
-                apiKey: 'AIzaSyDFJfc0Ay7Q8b--esNV86OCa8yLeC3n7FQ',
-                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
-            });
+        this._initPromise = new Promise((resolve, reject) => {
+            gapi.load('client', async () => {
+                try {
+                    await gapi.client.init({
+                        apiKey: 'AIzaSyDFJfc0Ay7Q8b--esNV86OCa8yLeC3n7FQ',
+                        discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+                    });
 
-            this.initialized = true;
-            console.log(`✅ Google Sheets API khởi tạo thành công
+                    this.initialized = true;
+                    console.log(`✅ Google Sheets API khởi tạo thành công
     🕒 Cập nhật lần cuối: ${this.lastUpdate}
     👤 User: ${this.username}`);
-        } catch (error) {
-            console.error('❌ Lỗi khởi tạo Google Sheets API:', error);
-            throw new Error(`Lỗi khởi tạo API: ${error.message}`);
-        }
+                    resolve();
+                } catch (error) {
+                    console.error('❌ Lỗi khởi tạo Google Sheets API:', error);
+                    reject(new Error(`Lỗi khởi tạo API: ${error.message}`));
+                }
+            });
+        });
+
+        return this._initPromise;
     }
 
     async getData(range) {
@@ -36,9 +44,7 @@ class GoogleSheetsAPI {
                 range: range,
             });
 
-            // Debug log
             console.log(`📊 Lấy dữ liệu từ range ${range}:`, response.result.values);
-
             return response.result.values || [];
         } catch (error) {
             console.error('❌ Lỗi khi lấy dữ liệu:', error);
@@ -55,7 +61,6 @@ class GoogleSheetsAPI {
                 this.getData('TIẾT KIỆM!A2:E')
             ]);
 
-            // Debug log raw data
             console.log('📋 Raw Data:', {
                 keHoach: keHoach,
                 nganSach: nganSach,
@@ -77,9 +82,7 @@ class GoogleSheetsAPI {
                 tietKiem: this.filterByMonth(tietKiem, month)
             };
 
-            // Debug log filtered data
             console.log('🔍 Filtered Data:', filteredData);
-
             return filteredData;
         } catch (error) {
             console.error('❌ Lỗi khi lấy tất cả dữ liệu:', error);
@@ -99,9 +102,19 @@ class GoogleSheetsAPI {
         });
     }
 
+    sumColumn(data, colIndex) {
+        if (!data || !Array.isArray(data)) return 0;
+        return data.reduce((sum, row) => {
+            if (!row[colIndex]) return sum;
+            const rawValue = String(row[colIndex]).replace(/[^\d.-]/g, '');
+            const value = parseFloat(rawValue) || 0;
+            console.log(`🔢 Processing value: "${row[colIndex]}" -> ${value}`);
+            return sum + value;
+        }, 0);
+    }
+
     calculateTotals(data) {
         try {
-            // Debug log before calculation
             console.log('💭 Calculating totals for:', data);
 
             const totals = {
@@ -122,20 +135,6 @@ class GoogleSheetsAPI {
         }
     }
 
-    sumColumn(data, colIndex) {
-        if (!data || !Array.isArray(data)) return 0;
-        return data.reduce((sum, row) => {
-            // Xử lý string và loại bỏ ký tự đặc biệt
-            const rawValue = String(row[colIndex] || '0').replace(/[^\d.-]/g, '');
-            const value = parseFloat(rawValue) || 0;
-            
-            // Debug log cho mỗi giá trị
-            console.log(`🔢 Processing value: "${row[colIndex]}" -> ${value}`);
-            
-            return sum + value;
-        }, 0);
-    }
-
     getChartData(data) {
         try {
             const categories = {};
@@ -152,15 +151,10 @@ class GoogleSheetsAPI {
                 amount: parseFloat(String(row[3]).replace(/[^\d.-]/g, '')) || 0
             })) : [];
 
-            // Debug log chart data
             console.log('📊 Chart Data:', {
                 categories: categories,
                 savings: savings
             });
-
-            console.log(`📊 Dữ liệu biểu đồ:
-    🔍 Số danh mục chi tiêu: ${Object.keys(categories).length}
-    📅 Số tháng tiết kiệm: ${savings.length}`);
 
             return {
                 expenseChart: {
@@ -179,20 +173,5 @@ class GoogleSheetsAPI {
     }
 }
 
-// Khởi tạo instance của GoogleSheetsAPI
+// Khởi tạo instance
 const sheetsApi = new GoogleSheetsAPI();
-
-// Load Google API khi trang được load
-gapi.load('client', async () => {
-    try {
-        await sheetsApi.initialize();
-        console.log('🚀 Google Sheets API đã sẵn sàng');
-    } catch (error) {
-        console.error('❌ Lỗi khởi tạo API:', error);
-        document.getElementById('error-message').innerHTML = 
-            `<div class="alert alert-danger">
-                Có lỗi xảy ra khi kết nối với Google Sheets. 
-                Vui lòng tải lại trang hoặc liên hệ admin.
-            </div>`;
-    }
-});
