@@ -3,6 +3,7 @@ class GoogleSheetsAPI {
         // ID của Google Sheet của bạn
         this.spreadsheetId = '1d-laKM9AZDEfxxChXI_q4xUcqxPGVs7GUZNHmptpRPE';
         this.initialized = false;
+        this.lastUpdate = '2025-05-17 06:13:00'; // Thời gian cập nhật
     }
 
     async initialize() {
@@ -10,12 +11,12 @@ class GoogleSheetsAPI {
 
         try {
             await gapi.client.init({
-                apiKey: 'YOUR_API_KEY', // Thêm API key nếu cần
+                apiKey: 'YOUR-API-KEY-HERE', // Thay thế bằng API key của bạn
                 discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
             });
 
             this.initialized = true;
-            console.log('✅ Google Sheets API đã được khởi tạo thành công');
+            console.log(`✅ Google Sheets API đã được khởi tạo thành công (${this.lastUpdate})`);
         } catch (error) {
             console.error('❌ Lỗi khởi tạo Google Sheets API:', error);
             throw error;
