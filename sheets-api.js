@@ -1,7 +1,7 @@
 class GoogleSheetsAPI {
     constructor(credentials) {
         this.credentials = credentials;
-        this.spreadsheetId = 'YOUR_SPREADSHEET_ID'; // Thay thế bằng ID của Google Sheet của bạn
+        this.spreadsheetId = '1d-laKM9AZDEfxxChXI_q4xUcqxPGVs7GUZNHmptpRPE'; // Thay thế bằng ID của Google Sheet của bạn
     }
 
     async initialize() {
