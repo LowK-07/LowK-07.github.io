@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Tài chính Cá nhân</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Quản lý Tài chính Cá nhân 💰</h1>
+        </header>
+        
+        <main>
+            <div class="dashboard">
+                <div class="balance-card">
+                    <h2>Tổng quan</h2>
+                    <div id="balanceSheet"></div>
+                </div>
+                
+                <div class="transaction-card">
+                    <h2>Ghi chép mới</h2>
+                    <form id="transactionForm">
+                        <input type="date" id="date" required>
+                        <input type="text" id="description" placeholder="Mô tả" required>
+                        <input type="number" id="amount" placeholder="Số tiền" required>
+                        <select id="type" required>
+                            <option value="income">Thu nhập</option>
+                            <option value="expense">Chi tiêu</option>
+                            <option value="saving">Tiết kiệm</option>
+                        </select>
+                        <button type="submit">Thêm</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="sheet-container">
+                <iframe id="googleSheet" frameborder="0"></iframe>
+            </div>
+        </main>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="background-music.mp3" type="audio/mpeg">
+    </audio>
+    
+    <button id="musicToggle" onclick="toggleMusic()">🎵</button>
+    
+    <script src="script.js"></script>
+</body>
+</html>
