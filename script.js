@@ -15,7 +15,7 @@ function toggleMusic() {
 
 // Tích hợp Google Sheets
 function initGoogleSheets() {
-    const sheetId = 'YOUR_GOOGLE_SHEET_ID'; // Thay thế bằng ID Google Sheet của bạn
+    const sheetId = '1ADc7IZVjqqRGthwMc81oqkjsz-dl-7pXB5Lrzhk8mvA'; // Thay thế bằng ID Google Sheet của bạn
     const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/edit?usp=sharing`;
     document.getElementById('googleSheet').src = sheetUrl;
 }
