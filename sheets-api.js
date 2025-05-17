@@ -174,4 +174,8 @@ class GoogleSheetsAPI {
 }
 
 // Khởi tạo instance
+<<<<<<< HEAD
 const sheetsApi = new GoogleSheetsAPI();
+=======
+const sheetsApi = new GoogleSheetsAPI();
+>>>>>>> cb88e6e88ae1e5dc16c2b6ada86b1cd8e1295256
