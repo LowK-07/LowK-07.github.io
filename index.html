@@ -3,50 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Tài chính Cá nhân</title>
+    <title>Quản lý Tài chính Cá nhân - LowK-07</title>
+    <meta name="description" content="Personal Finance Tracker by LowK-07">
+    <meta name="author" content="LowK-07">
+    <link rel="canonical" href="https://LowK-07.github.io">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.15/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>💰 Quản lý Tài chính Cá nhân 💰</h1>
+            <h1>💰 Quản lý Tài chính Cá nhân - LowK-07 💰</h1>
         </header>
         
         <main>
             <div class="dashboard">
-                <div class="balance-card">
-                    <h2>Tổng quan</h2>
-                    <div id="balanceSheet"></div>
+                <div class="summary-cards">
+                    <div class="card" id="budgetCard">
+                        <h3>Tổng Ngân sách</h3>
+                        <p class="amount">Đang tải...</p>
+                    </div>
+                    <div class="card" id="expenseCard">
+                        <h3>Tổng Chi tiêu</h3>
+                        <p class="amount">Đang tải...</p>
+                    </div>
+                    <div class="card" id="savingCard">
+                        <h3>Tiết kiệm</h3>
+                        <p class="amount">Đang tải...</p>
+                    </div>
                 </div>
-                
-                <div class="transaction-card">
-                    <h2>Ghi chép mới</h2>
-                    <form id="transactionForm">
-                        <input type="date" id="date" required>
-                        <input type="text" id="description" placeholder="Mô tả" required>
-                        <input type="number" id="amount" placeholder="Số tiền" required>
-                        <select id="type" required>
-                            <option value="income">Thu nhập</option>
-                            <option value="expense">Chi tiêu</option>
-                            <option value="saving">Tiết kiệm</option>
+
+                <div class="charts-container">
+                    <div class="chart-wrapper">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="savingChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="data-section">
+                    <div class="controls">
+                        <select id="dataType">
+                            <option value="KE_HOACH">Kế hoạch Chi tiêu</option>
+                            <option value="NGAN_SACH">Ngân sách</option>
+                            <option value="CHI_TIEU">Chi tiêu Cụ thể</option>
+                            <option value="TIET_KIEM">Tiết kiệm</option>
                         </select>
-                        <button type="submit">Thêm</button>
-                    </form>
+                        <input type="month" id="monthPicker" value="2025-05">
+                        <button onclick="refreshData()" class="btn">🔄 Làm mới</button>
+                        <button onclick="exportPDF()" class="btn">📄 Xuất PDF</button>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="dataTable">
+                            <thead></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="sheet-container">
-                <iframe id="googleSheet" frameborder="0"></iframe>
             </div>
         </main>
     </div>
 
+    <button id="musicToggle" onclick="toggleMusic()">🎵</button>
     <audio id="bgMusic" loop>
         <source src="background-music.mp3" type="audio/mpeg">
     </audio>
-    
-    <button id="musicToggle" onclick="toggleMusic()">🎵</button>
-    
+
+    <script src="sheets-api.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
