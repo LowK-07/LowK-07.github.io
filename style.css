@@ -2,15 +2,21 @@
     --primary-color: #ff9ecd;
     --secondary-color: #ffd6e7;
     --text-color: #4a4a4a;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     --border-radius: 15px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
     font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
     background-color: #fff5f8;
     color: var(--text-color);
+    line-height: 1.6;
 }
 
 .container {
@@ -30,54 +36,99 @@ header h1 {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.dashboard {
+.summary-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
 
-.balance-card, .transaction-card {
-    background-color: white;
+.card {
+    background: white;
     padding: 20px;
     border-radius: var(--border-radius);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow);
+    text-align: center;
 }
 
-.sheet-container {
-    background-color: white;
-    padding: 20px;
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.card h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
 }
 
-#googleSheet {
-    width: 100%;
-    height: 600px;
+.amount {
+    font-size: 1.5em;
+    font-weight: bold;
 }
 
-form {
+.charts-container {
     display: grid;
-    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
 }
 
-input, select, button {
+.chart-wrapper {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+select, input, button {
     padding: 10px;
     border: 1px solid var(--secondary-color);
     border-radius: 5px;
     font-size: 1em;
 }
 
-button {
+.btn {
     background-color: var(--primary-color);
     color: white;
     border: none;
     cursor: pointer;
     transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
-button:hover {
+.btn:hover {
     background-color: #ff7eb8;
+}
+
+.table-container {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--secondary-color);
+}
+
+th {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+}
+
+tr:hover {
+    background-color: #fff5f8;
 }
 
 #musicToggle {
@@ -89,7 +140,17 @@ button:hover {
     border-radius: 50%;
     background-color: var(--primary-color);
     border: none;
+    color: white;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    font-size: 1.5em;
+    box-shadow: var(--shadow);
+}
+
+@media (max-width: 768px) {
+    .charts-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .controls {
+        flex-direction: column;
+    }
 }
