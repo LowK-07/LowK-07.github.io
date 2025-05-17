@@ -1,9 +1,26 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Khởi tạo tháng hiện tại
+// Khởi tạo ứng dụng
+async function initializeApp() {
+    try {
+        await sheetsApi.initialize();
+        console.log('🚀 Google Sheets API đã sẵn sàng');
+        setupEventListeners();
+        await updateData();
+    } catch (error) {
+        console.error('❌ Lỗi khởi tạo:', error);
+        document.getElementById('error-message').innerHTML = 
+            `<div class="alert alert-danger">
+                Có lỗi xảy ra khi kết nối với Google Sheets. 
+                Vui lòng tải lại trang hoặc liên hệ admin.
+                <br>Chi tiết: ${error.message}
+            </div>`;
+    }
+}
+
+// Thiết lập các event listeners
+function setupEventListeners() {
     const currentDate = new Date();
     const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
     
-    // Populate month selector
     const monthSelector = document.getElementById('monthSelector');
     for (let i = 0; i < 12; i++) {
         const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
@@ -17,35 +34,32 @@ document.addEventListener('DOMContentLoaded', function() {
         monthSelector.appendChild(option);
     }
 
-    // Update data when month changes
     monthSelector.addEventListener('change', updateData);
+}
 
-    // Initial data load
-    updateData();
-});
-
+// Cập nhật dữ liệu
 async function updateData() {
     try {
         const month = document.getElementById('monthSelector').value;
         const data = await sheetsApi.getAllData(month);
         const totals = sheetsApi.calculateTotals(data);
         
-        // Update summary cards
+        // Cập nhật các thẻ tổng hợp
         document.getElementById('tongNganSach').textContent = totals.tongNganSach.toLocaleString('vi-VN') + 'đ';
         document.getElementById('tongChiTieu').textContent = totals.tongChiTieu.toLocaleString('vi-VN') + 'đ';
         document.getElementById('conLai').textContent = (totals.tongNganSach - totals.tongChiTieu).toLocaleString('vi-VN') + 'đ';
         document.getElementById('tietKiem').textContent = totals.tongTietKiem.toLocaleString('vi-VN') + 'đ';
 
-        // Update tables
+        // Cập nhật bảng
         updateTable('keHoachTable', data.keHoach);
         updateTable('chiTieuTable', data.chiTieu);
 
-        // Update charts
+        // Cập nhật biểu đồ
         const chartData = sheetsApi.getChartData(data);
         updateCharts(chartData);
 
     } catch (error) {
-        console.error('Lỗi khi cập nhật dữ liệu:', error);
+        console.error('❌ Lỗi khi cập nhật dữ liệu:', error);
         document.getElementById('error-message').innerHTML = 
             `<div class="alert alert-danger">
                 Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.
@@ -54,6 +68,7 @@ async function updateData() {
     }
 }
 
+// Cập nhật bảng
 function updateTable(tableId, data) {
     const tbody = document.querySelector(`#${tableId} tbody`);
     tbody.innerHTML = '';
@@ -67,13 +82,14 @@ function updateTable(tableId, data) {
 
     data.forEach(row => {
         const tr = document.createElement('tr');
-        tr.innerHTML = row.map(cell => `<td>${cell}</td>`).join('');
+        tr.innerHTML = row.map(cell => `<td>${cell || ''}</td>`).join('');
         tbody.appendChild(tr);
     });
 }
 
+// Cập nhật biểu đồ
 function updateCharts(chartData) {
-    // Update Expense Chart
+    // Biểu đồ chi tiêu
     const expenseCtx = document.getElementById('expenseChart').getContext('2d');
     if (window.expenseChart) {
         window.expenseChart.destroy();
@@ -100,7 +116,7 @@ function updateCharts(chartData) {
         }
     });
 
-    // Update Saving Chart
+    // Biểu đồ tiết kiệm
     const savingCtx = document.getElementById('savingChart').getContext('2d');
     if (window.savingChart) {
         window.savingChart.destroy();
@@ -126,3 +142,6 @@ function updateCharts(chartData) {
         }
     });
 }
+
+// Khởi tạo khi DOM đã load xong
+document.addEventListener('DOMContentLoaded', initializeApp);
