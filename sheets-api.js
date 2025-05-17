@@ -3,7 +3,8 @@ class GoogleSheetsAPI {
         // ID của Google Sheet của bạn
         this.spreadsheetId = '1d-laKM9AZDEfxxChXI_q4xUcqxPGVs7GUZNHmptpRPE';
         this.initialized = false;
-        this.lastUpdate = '2025-05-17 06:13:00'; // Thời gian cập nhật
+        this.lastUpdate = '2025-05-17 06:28:58';
+        this.username = 'LowK-07';
     }
 
     async initialize() {
@@ -11,15 +12,17 @@ class GoogleSheetsAPI {
 
         try {
             await gapi.client.init({
-                apiKey: 'YOUR-API-KEY-HERE', // Thay thế bằng API key của bạn
+                apiKey: 'AIzaSyDFJfc0Ay7Q8b--esNV86OCa8yLeC3n7FQ',
                 discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
             });
 
             this.initialized = true;
-            console.log(`✅ Google Sheets API đã được khởi tạo thành công (${this.lastUpdate})`);
+            console.log(`✅ Google Sheets API khởi tạo thành công
+    🕒 Cập nhật lần cuối: ${this.lastUpdate}
+    👤 User: ${this.username}`);
         } catch (error) {
             console.error('❌ Lỗi khởi tạo Google Sheets API:', error);
-            throw error;
+            throw new Error(`Lỗi khởi tạo API: ${error.message}`);
         }
     }
 
@@ -37,7 +40,7 @@ class GoogleSheetsAPI {
             return response.result.values || [];
         } catch (error) {
             console.error('❌ Lỗi khi lấy dữ liệu:', error);
-            throw error;
+            throw new Error(`Lỗi lấy dữ liệu từ sheet: ${error.message}`);
         }
     }
 
@@ -50,6 +53,13 @@ class GoogleSheetsAPI {
                 this.getData('TIẾT KIỆM!A2:E')
             ]);
 
+            console.log(`📊 Đã lấy dữ liệu thành công
+    📅 Tháng: ${month || 'Tất cả'}
+    📝 Số mục kế hoạch: ${keHoach?.length || 0}
+    💰 Số mục ngân sách: ${nganSach?.length || 0}
+    💸 Số mục chi tiêu: ${chiTieu?.length || 0}
+    🏦 Số mục tiết kiệm: ${tietKiem?.length || 0}`);
+
             return {
                 keHoach: this.filterByMonth(keHoach, month),
                 nganSach: this.filterByMonth(nganSach, month),
@@ -58,7 +68,7 @@ class GoogleSheetsAPI {
             };
         } catch (error) {
             console.error('❌ Lỗi khi lấy tất cả dữ liệu:', error);
-            throw error;
+            throw new Error(`Lỗi lấy toàn bộ dữ liệu: ${error.message}`);
         }
     }
 
@@ -75,11 +85,23 @@ class GoogleSheetsAPI {
     }
 
     calculateTotals(data) {
-        return {
-            tongNganSach: this.sumColumn(data.nganSach, 2),
-            tongChiTieu: this.sumColumn(data.chiTieu, 2),
-            tongTietKiem: this.sumColumn(data.tietKiem, 3)
-        };
+        try {
+            const totals = {
+                tongNganSach: this.sumColumn(data.nganSach, 2),
+                tongChiTieu: this.sumColumn(data.chiTieu, 2),
+                tongTietKiem: this.sumColumn(data.tietKiem, 3)
+            };
+
+            console.log(`💵 Tổng kết:
+    📈 Tổng ngân sách: ${totals.tongNganSach.toLocaleString('vi-VN')}đ
+    📉 Tổng chi tiêu: ${totals.tongChiTieu.toLocaleString('vi-VN')}đ
+    💰 Tổng tiết kiệm: ${totals.tongTietKiem.toLocaleString('vi-VN')}đ`);
+
+            return totals;
+        } catch (error) {
+            console.error('❌ Lỗi khi tính tổng:', error);
+            throw new Error(`Lỗi tính tổng: ${error.message}`);
+        }
     }
 
     sumColumn(data, colIndex) {
@@ -91,40 +113,56 @@ class GoogleSheetsAPI {
     }
 
     getChartData(data) {
-        const categories = {};
-        if (data.chiTieu) {
-            data.chiTieu.forEach(row => {
-                const category = row[3] || 'Khác';
-                const amount = parseFloat(row[2]) || 0;
-                categories[category] = (categories[category] || 0) + amount;
-            });
-        }
-
-        const savings = data.tietKiem ? data.tietKiem.map(row => ({
-            month: row[0],
-            amount: parseFloat(row[3]) || 0
-        })) : [];
-
-        return {
-            expenseChart: {
-                labels: Object.keys(categories),
-                data: Object.values(categories)
-            },
-            savingChart: {
-                labels: savings.map(s => s.month),
-                data: savings.map(s => s.amount)
+        try {
+            const categories = {};
+            if (data.chiTieu) {
+                data.chiTieu.forEach(row => {
+                    const category = row[3] || 'Khác';
+                    const amount = parseFloat(row[2]) || 0;
+                    categories[category] = (categories[category] || 0) + amount;
+                });
             }
-        };
+
+            const savings = data.tietKiem ? data.tietKiem.map(row => ({
+                month: row[0],
+                amount: parseFloat(row[3]) || 0
+            })) : [];
+
+            console.log(`📊 Dữ liệu biểu đồ:
+    🔍 Số danh mục chi tiêu: ${Object.keys(categories).length}
+    📅 Số tháng tiết kiệm: ${savings.length}`);
+
+            return {
+                expenseChart: {
+                    labels: Object.keys(categories),
+                    data: Object.values(categories)
+                },
+                savingChart: {
+                    labels: savings.map(s => s.month),
+                    data: savings.map(s => s.amount)
+                }
+            };
+        } catch (error) {
+            console.error('❌ Lỗi khi tạo dữ liệu biểu đồ:', error);
+            throw new Error(`Lỗi tạo biểu đồ: ${error.message}`);
+        }
     }
 }
 
+// Khởi tạo instance của GoogleSheetsAPI
 const sheetsApi = new GoogleSheetsAPI();
 
 // Load Google API khi trang được load
 gapi.load('client', async () => {
     try {
         await sheetsApi.initialize();
+        console.log('🚀 Google Sheets API đã sẵn sàng');
     } catch (error) {
-        console.error('Lỗi khởi tạo API:', error);
+        console.error('❌ Lỗi khởi tạo API:', error);
+        document.getElementById('error-message').innerHTML = 
+            `<div class="alert alert-danger">
+                Có lỗi xảy ra khi kết nối với Google Sheets. 
+                Vui lòng tải lại trang hoặc liên hệ admin.
+            </div>`;
     }
 });
