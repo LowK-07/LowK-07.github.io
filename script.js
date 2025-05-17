@@ -1,18 +1,16 @@
 let currentMonth = document.getElementById('monthPicker').value;
 let expenseChart, savingChart;
 
-// Khởi tạo khi trang load
 document.addEventListener('DOMContentLoaded', async () => {
-    await sheetsApi.initialize();
-    await refreshData();
     setupCharts();
+    await refreshData();
 });
 
 async function refreshData() {
-    currentMonth = document.getElementById('monthPicker').value;
-    const dataType = document.getElementById('dataType').value;
-    
     try {
+        currentMonth = document.getElementById('monthPicker').value;
+        const dataType = document.getElementById('dataType').value;
+        
         const data = await sheetsApi.getAllData(currentMonth);
         updateDashboard(data);
         updateTable(dataType, data);
@@ -35,7 +33,6 @@ function updateDashboard(data) {
 }
 
 function setupCharts() {
-    // Biểu đồ chi tiêu theo danh mục
     const expenseCtx = document.getElementById('expenseChart').getContext('2d');
     expenseChart = new Chart(expenseCtx, {
         type: 'pie',
@@ -60,7 +57,6 @@ function setupCharts() {
         }
     });
 
-    // Biểu đồ tiết kiệm theo tháng
     const savingCtx = document.getElementById('savingChart').getContext('2d');
     savingChart = new Chart(savingCtx, {
         type: 'line',
@@ -94,12 +90,10 @@ function setupCharts() {
 function updateCharts(data) {
     const chartData = sheetsApi.getChartData(data);
 
-    // Cập nhật biểu đồ chi tiêu
     expenseChart.data.labels = chartData.expenseChart.labels;
     expenseChart.data.datasets[0].data = chartData.expenseChart.data;
     expenseChart.update();
 
-    // Cập nhật biểu đồ tiết kiệm
     savingChart.data.labels = chartData.savingChart.labels;
     savingChart.data.datasets[0].data = chartData.savingChart.data;
     savingChart.update();
@@ -144,63 +138,6 @@ function updateTable(dataType, data) {
             `).join('')}
         </tr>
     `).join('');
-}
-
-async function exportPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    try {
-        const data = await sheetsApi.getAllData(currentMonth);
-        const totals = sheetsApi.calculateTotals(data);
-        
-        // Tiêu đề
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(20);
-        doc.text('Báo cáo Tài chính Cá nhân', 105, 20, { align: 'center' });
-        
-        // Thông tin chung
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`Tháng: ${currentMonth}`, 20, 30);
-        doc.text(`Ngày xuất: ${new Date().toLocaleDateString('vi-VN')}`, 20, 40);
-        
-        // Tổng quan
-        doc.text('Tổng quan:', 20, 55);
-        doc.text(`Tổng ngân sách: ${formatCurrency(totals.tongNganSach)}`, 30, 65);
-        doc.text(`Tổng chi tiêu: ${formatCurrency(totals.tongChiTieu)}`, 30, 75);
-        doc.text(`Tiết kiệm: ${formatCurrency(totals.tongTietKiem)}`, 30, 85);
-        
-        // Bảng chi tiết
-        const tableData = data.chiTieu.map(row => [
-            row[0],
-            row[1],
-            formatCurrency(row[2]),
-            row[3],
-            row[4]
-        ]);
-        
-        doc.autoTable({
-            startY: 100,
-            head: [['Ngày', 'Mô tả', 'Số tiền', 'Danh mục', 'Phương thức']],
-            body: tableData,
-            theme: 'grid',
-            styles: {
-                fontSize: 10,
-                cellPadding: 5
-            },
-            headStyles: {
-                fillColor: [255, 158, 205],
-                textColor: [255, 255, 255]
-            }
-        });
-        
-        // Lưu file
-        doc.save(`bao-cao-tai-chinh-${currentMonth}.pdf`);
-    } catch (error) {
-        console.error('Lỗi khi tạo PDF:', error);
-        alert('Có lỗi xảy ra khi tạo PDF. Vui lòng thử lại.');
-    }
 }
 
 function formatCurrency(amount) {
